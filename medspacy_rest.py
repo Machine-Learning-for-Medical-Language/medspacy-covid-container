@@ -1,4 +1,5 @@
 from os import getenv
+import sys
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -6,6 +7,8 @@ from pydantic import BaseModel
 import medspacy
 from medspacy.util import DEFAULT_PIPENAMES
 from medspacy_utils import doc2json
+from quickumls.spacy_component import SpacyQuickUMLS
+import cov_bsv
 
 app = FastAPI()
 
@@ -20,15 +23,13 @@ async def startup_event():
         sys.stderr.write('Error: No value for %s.\nPlease set environment variable otherwise useless default index will be used.\n' % (quickumls_path_str))
         sys.exit(-1)
 
-    medspacy_pipes = DEFAULT_PIPENAMES.copy()
-
-    if 'quickumls' not in medspacy_pipes: 
-        medspacy_pipes.add('quickumls')
-    
-    app.nlp=medspacy.load(enable=medspacy_pipes, quickumls_path=quickumls_path)
+    nlp = cov_bsv.load()
+    quickumls_component = SpacyQuickUMLS(nlp, quickumls_path)
+    nlp.add_pipe(quickumls_component)
+    app.nlp = nlp
 
 @app.post("/process")
 def process(doc: Document):
     doc = app.nlp(doc.doc_text)
-    return doc2json(doc)
+    return doc2entlist(doc)
 

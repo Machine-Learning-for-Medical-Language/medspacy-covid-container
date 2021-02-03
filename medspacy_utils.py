@@ -2,9 +2,12 @@
 import json
 import medspacy
 
-def doc2json(doc):
+def doc2entlist(doc):
     ents = []
     for ent in doc.ents:
+        if ent._.semtypes == -1:
+            ent._.semtypes = {"COVID"}
+
         ent_dict = {'begin': ent.start_char,
                     'end': ent.end_char,
                     'polarity': -1 if ent._.is_negated else 1,
@@ -14,5 +17,7 @@ def doc2json(doc):
         }
         ents.append(ent_dict)
     
-    return json.dumps(ents)
-    
+    return ents
+
+def doc2json(doc):
+    return json.dumps(doc2entlist(doc))

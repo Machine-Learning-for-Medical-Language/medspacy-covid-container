@@ -6,6 +6,8 @@ import spacy
 import medspacy
 from medspacy.util import DEFAULT_PIPENAMES
 from medspacy_utils import doc2json
+from quickumls.spacy_component import SpacyQuickUMLS
+import cov_bsv
 
 def main(args):
     if len(args) < 2:
@@ -20,12 +22,9 @@ def main(args):
 
     txt_files = [f for f in listdir(args[0]) if isfile(join(args[0], f)) and f.endswith('.txt')]
     
-    medspacy_pipes = DEFAULT_PIPENAMES.copy()
-
-    if 'quickumls' not in medspacy_pipes: 
-        medspacy_pipes.add('quickumls')
-    
-    nlp=medspacy.load(enable=medspacy_pipes, quickumls_path=quickumls_path)
+    nlp = cov_bsv.load()
+    quickumls_component = SpacyQuickUMLS(nlp, quickumls_path)
+    nlp.add_pipe(quickumls_component)
 
     for fn in txt_files:
         with open(join(args[0], fn)) as f:
