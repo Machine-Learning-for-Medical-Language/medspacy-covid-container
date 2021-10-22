@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 import medspacy
 from medspacy.util import DEFAULT_PIPENAMES
-from medspacy_utils import doc2json
+from medspacy_utils import doc2entlist
 from quickumls.spacy_component import SpacyQuickUMLS
 import cov_bsv
 
